@@ -3,6 +3,7 @@ import SwiftData
 
 struct SettingsView: View {
     @EnvironmentObject private var notificationManager: NotificationManager
+    @EnvironmentObject private var authService: AuthService
     @Query(sort: \GratitudeEntry.date, order: .reverse) private var entries: [GratitudeEntry]
 
     @State private var showingNotificationAlert = false
@@ -164,6 +165,64 @@ struct SettingsView: View {
                         .shadow(color: .black.opacity(0.04), radius: 6, y: 3)
                     }
 
+                    // Account Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        SectionTitle(title: "Account")
+
+                        VStack(spacing: 0) {
+                            if let user = authService.currentUser {
+                                HStack {
+                                    Image(systemName: "person.circle.fill")
+                                        .font(.system(size: 24))
+                                        .foregroundStyle(JournalTheme.goldAccent)
+                                        .frame(width: 32)
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(user.displayName ?? "Journaler")
+                                            .font(JournalTheme.serifFont(size: 16, weight: .medium))
+                                            .foregroundStyle(JournalTheme.inkNavy)
+
+                                        if let email = user.email {
+                                            Text(email)
+                                                .font(.caption)
+                                                .foregroundStyle(JournalTheme.inkCharcoal.opacity(0.5))
+                                        }
+                                    }
+
+                                    Spacer()
+                                }
+                                .padding()
+
+                                Divider()
+                                    .background(JournalTheme.goldAccent.opacity(0.2))
+                            }
+
+                            Button {
+                                authService.signOut()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                                        .foregroundStyle(JournalTheme.copperAccent)
+                                        .frame(width: 24)
+
+                                    Text("Sign Out")
+                                        .font(JournalTheme.serifFont(size: 16))
+                                        .foregroundStyle(JournalTheme.copperAccent)
+
+                                    Spacer()
+                                }
+                                .padding()
+                            }
+                        }
+                        .background(JournalTheme.cream)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(JournalTheme.goldAccent.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.04), radius: 6, y: 3)
+                    }
+
                     // About Section
                     VStack(alignment: .leading, spacing: 16) {
                         SectionTitle(title: "About")
@@ -288,4 +347,5 @@ struct JournalStatRow: View {
     SettingsView()
         .modelContainer(for: GratitudeEntry.self, inMemory: true)
         .environmentObject(NotificationManager.shared)
+        .environmentObject(AuthService.shared)
 }
