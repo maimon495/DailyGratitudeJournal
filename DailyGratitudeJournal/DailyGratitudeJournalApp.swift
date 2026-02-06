@@ -1,9 +1,14 @@
 import SwiftUI
 import SwiftData
 
+#if canImport(FirebaseCore)
+import FirebaseCore
+#endif
+
 @main
 struct DailyGratitudeJournalApp: App {
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var authService = AuthService.shared
     @State private var showSplash = true
 
     var sharedModelContainer: ModelContainer = {
@@ -17,14 +22,26 @@ struct DailyGratitudeJournalApp: App {
         }
     }()
 
+    init() {
+        #if canImport(FirebaseCore)
+        FirebaseApp.configure()
+        #endif
+    }
+
     var body: some Scene {
         WindowGroup {
             ZStack {
-                ContentView()
-                    .environmentObject(notificationManager)
-                    .onAppear {
-                        notificationManager.clearBadge()
-                    }
+                if authService.isAuthenticated {
+                    ContentView()
+                        .environmentObject(notificationManager)
+                        .environmentObject(authService)
+                        .onAppear {
+                            notificationManager.clearBadge()
+                        }
+                } else {
+                    LoginView()
+                        .environmentObject(authService)
+                }
 
                 if showSplash {
                     SplashView(isActive: $showSplash)
