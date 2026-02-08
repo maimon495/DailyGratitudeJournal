@@ -242,31 +242,30 @@ struct CompactFontPicker: View {
             if isExpanded {
                 VStack(spacing: 4) {
                     ForEach(JournalFont.allCases) { font in
-                        Button {
+                        HStack {
+                            Text(font.displayName)
+                                .font(font.font(size: 15, weight: .medium))
+                                .foregroundStyle(selectedFont == font ? JournalTheme.goldAccent : JournalTheme.inkNavy)
+
+                            Spacer()
+
+                            if selectedFont == font {
+                                Image(systemName: "checkmark")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(JournalTheme.goldAccent)
+                            }
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(selectedFont == font ? JournalTheme.goldAccent.opacity(0.1) : .clear)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .contentShape(Rectangle())
+                        .onTapGesture {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                                 selectedFont = font
                                 isExpanded = false
                             }
-                        } label: {
-                            HStack {
-                                Text(font.displayName)
-                                    .font(font.font(size: 15, weight: .medium))
-                                    .foregroundStyle(selectedFont == font ? JournalTheme.goldAccent : JournalTheme.inkNavy)
-
-                                Spacer()
-
-                                if selectedFont == font {
-                                    Image(systemName: "checkmark")
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(JournalTheme.goldAccent)
-                                }
-                            }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 10)
-                            .background(selectedFont == font ? JournalTheme.goldAccent.opacity(0.1) : .clear)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
-                        .buttonStyle(.plain)
                     }
                 }
                 .padding(8)
