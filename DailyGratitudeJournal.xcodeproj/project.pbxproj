@@ -30,6 +30,7 @@
 		E87EB32F2F313D6F00D7711E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = E87EB32E2F313D6F00D7711E /* GoogleSignIn */; };
 		E87EB3312F313D6F00D7711E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E87EB3302F313D6F00D7711E /* GoogleSignInSwift */; };
 		E893D0A52F3570A5006C7C43 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E893D0A42F3570A5006C7C43 /* GoogleService-Info.plist */; };
+		E893D0A82F38CBB9006C7C43 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E893D0A72F38CBB9006C7C43 /* FirebaseAnalytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +65,7 @@
 				E87EB32B2F313B3D00D7711E /* FirebaseCore in Frameworks */,
 				E87EB3292F313B3D00D7711E /* FirebaseAuth in Frameworks */,
 				E87EB32F2F313D6F00D7711E /* GoogleSignIn in Frameworks */,
+				E893D0A82F38CBB9006C7C43 /* FirebaseAnalytics in Frameworks */,
 				E87EB3312F313D6F00D7711E /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -75,6 +77,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000000030 /* DailyGratitudeJournal */,
+				E893D0A62F38CBB9006C7C43 /* Frameworks */,
 				A1000000040 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -144,6 +147,13 @@
 				A1000014000 /* InkColorPicker.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		E893D0A62F38CBB9006C7C43 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -368,7 +378,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = F669HYU266;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -397,7 +407,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = F669HYU266;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -482,6 +492,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E87EB32D2F313D6F00D7711E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
+		};
+		E893D0A72F38CBB9006C7C43 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E87EB3272F313B3D00D7711E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
