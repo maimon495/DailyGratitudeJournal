@@ -12,6 +12,13 @@ struct EntryDetailView: View {
     @State private var editedFont: JournalFont = .classicSerif
     @State private var showingDeleteConfirmation = false
 
+    // Read-only mode: saved entries cannot be edited (like writing in pen)
+    private var isReadOnly: Bool {
+        // Entry is read-only if it has been saved (exists in the database)
+        // In bullet journaling, you write in pen - no editing allowed!
+        return true
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -49,13 +56,15 @@ struct EntryDetailView: View {
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Button {
-                            editedContent = entry.content
-                            editedInkColor = entry.inkColor
-                            editedFont = entry.font
-                            isEditing = true
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
+                        if !isReadOnly {
+                            Button {
+                                editedContent = entry.content
+                                editedInkColor = entry.inkColor
+                                editedFont = entry.font
+                                isEditing = true
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
                         }
 
                         Button(role: .destructive) {
@@ -125,6 +134,21 @@ struct EntryDetailView: View {
             }
             .padding(JournalTheme.pageMargin)
             .journalPageStyle()
+
+            // Read-only indicator (like ink in a journal)
+            if isReadOnly {
+                HStack(spacing: 6) {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(JournalTheme.inkCharcoal.opacity(0.4))
+
+                    Text("Written in permanent ink")
+                        .font(JournalTheme.serifFont(size: 12))
+                        .italic()
+                        .foregroundStyle(JournalTheme.inkCharcoal.opacity(0.4))
+                }
+                .padding(.top, -8)
+            }
 
             // Ink and font indicator
             HStack(spacing: 8) {
