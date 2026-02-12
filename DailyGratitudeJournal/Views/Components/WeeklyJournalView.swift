@@ -88,6 +88,7 @@ struct WeeklyJournalView: View {
         }
     }
 
+    @ViewBuilder
     private var emptyStateView: some View {
         VStack(spacing: 20) {
             Image(systemName: "book.closed")
@@ -108,6 +109,7 @@ struct WeeklyJournalView: View {
         .padding(40)
     }
 
+    @ViewBuilder
     private var pageIndicator: some View {
         HStack(spacing: 6) {
             ForEach(0..<weeks.count, id: \.self) { index in
@@ -119,6 +121,7 @@ struct WeeklyJournalView: View {
         .padding(.vertical, 8)
     }
 
+    @ViewBuilder
     private var bottomSearchBar: some View {
         HStack(spacing: 12) {
             Image(systemName: "magnifyingglass")
@@ -161,7 +164,9 @@ struct WeeklyJournalView: View {
     }
 }
 
-#Preview {
-    WeeklyJournalView()
-        .modelContainer(for: GratitudeEntry.self, inMemory: true)
+struct WeeklyJournalView_Previews: PreviewProvider {
+    static var previews: some View {
+        WeeklyJournalView()
+            .modelContainer(for: GratitudeEntry.self, inMemory: true)
+    }
 }

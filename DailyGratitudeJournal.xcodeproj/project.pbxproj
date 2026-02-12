@@ -25,6 +25,9 @@
 		A1000017001 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000017000 /* AuthService.swift */; };
 		A1000018001 /* AppleSignInHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000018000 /* AppleSignInHelper.swift */; };
 		A1000019001 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000019000 /* LoginView.swift */; };
+		E806C6982F3D31EF00BE927B /* PageFlipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E806C6952F3D31EF00BE927B /* PageFlipView.swift */; };
+		E806C6992F3D31EF00BE927B /* WeeklyJournalPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E806C6962F3D31EF00BE927B /* WeeklyJournalPageView.swift */; };
+		E806C69A2F3D31EF00BE927B /* WeeklyJournalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E806C6972F3D31EF00BE927B /* WeeklyJournalView.swift */; };
 		E87EB3292F313B3D00D7711E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = E87EB3282F313B3D00D7711E /* FirebaseAuth */; };
 		E87EB32B2F313B3D00D7711E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = E87EB32A2F313B3D00D7711E /* FirebaseCore */; };
 		E87EB32F2F313D6F00D7711E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = E87EB32E2F313D6F00D7711E /* GoogleSignIn */; };
@@ -53,6 +56,9 @@
 		A1000017000 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		A1000018000 /* AppleSignInHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInHelper.swift; sourceTree = "<group>"; };
 		A1000019000 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		E806C6952F3D31EF00BE927B /* PageFlipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageFlipView.swift; sourceTree = "<group>"; };
+		E806C6962F3D31EF00BE927B /* WeeklyJournalPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyJournalPageView.swift; sourceTree = "<group>"; };
+		E806C6972F3D31EF00BE927B /* WeeklyJournalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyJournalView.swift; sourceTree = "<group>"; };
 		E87EB32C2F313C9D00D7711E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E893D0A42F3570A5006C7C43 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -142,6 +148,9 @@
 		A1000000080 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				E806C6952F3D31EF00BE927B /* PageFlipView.swift */,
+				E806C6962F3D31EF00BE927B /* WeeklyJournalPageView.swift */,
+				E806C6972F3D31EF00BE927B /* WeeklyJournalView.swift */,
 				A1000010000 /* EntryDetailView.swift */,
 				A1000013000 /* JournalTheme.swift */,
 				A1000014000 /* InkColorPicker.swift */,
@@ -247,6 +256,9 @@
 				A1000017001 /* AuthService.swift in Sources */,
 				A1000018001 /* AppleSignInHelper.swift in Sources */,
 				A1000019001 /* LoginView.swift in Sources */,
+				E806C6982F3D31EF00BE927B /* PageFlipView.swift in Sources */,
+				E806C6992F3D31EF00BE927B /* WeeklyJournalPageView.swift in Sources */,
+				E806C69A2F3D31EF00BE927B /* WeeklyJournalView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,7 +390,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = F669HYU266;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -392,7 +404,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brianherz.DailyGratitudeJournal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -407,7 +419,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = F669HYU266;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -421,7 +433,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brianherz.DailyGratitudeJournal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

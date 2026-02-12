@@ -40,16 +40,12 @@ struct WeeklyJournalPageView: View {
     var body: some View {
         GeometryReader { geometry in
             HStack(spacing: 0) {
-                // Left page (blank for aesthetic)
-                leftPage
-                    .frame(width: geometry.size.width / 2)
-
-                // Binding/spine shadow
+                // Binding/spine shadow (on the left edge, implying the left page)
                 Rectangle()
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.black.opacity(0.2),
+                                Color.black.opacity(0.15),
                                 Color.black.opacity(0.05),
                                 Color.clear
                             ],
@@ -57,16 +53,17 @@ struct WeeklyJournalPageView: View {
                             endPoint: .trailing
                         )
                     )
-                    .frame(width: 8)
+                    .frame(width: 12)
 
-                // Right page (journal entries)
+                // Right page (journal entries) - full width
                 rightPage
-                    .frame(width: geometry.size.width / 2 - 4)
+                    .frame(width: geometry.size.width - 12)
             }
         }
         .background(JournalTheme.warmWhite)
     }
 
+    @ViewBuilder
     private var leftPage: some View {
         ZStack {
             // Cream background
@@ -96,6 +93,7 @@ struct WeeklyJournalPageView: View {
         }
     }
 
+    @ViewBuilder
     private var rightPage: some View {
         ZStack(alignment: .topLeading) {
             // Page background with ruled lines
@@ -163,6 +161,7 @@ struct DayEntryRow: View {
         return formatter.string(from: date)
     }
 
+    @ViewBuilder
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             // Date header
@@ -224,52 +223,39 @@ struct DayEntryRow: View {
     }
 }
 
-/// Ink well color indicator
-struct InkWell: View {
-    let color: InkColor
-    let size: CGFloat
 
-    var body: some View {
-        Circle()
-            .fill(color.color)
-            .frame(width: size, height: size)
-            .overlay(
-                Circle()
-                    .stroke(Color.black.opacity(0.1), lineWidth: 0.5)
+struct WeeklyJournalPageView_Previews: PreviewProvider {
+    static var previews: some View {
+        let calendar = Calendar.current
+        let today = Date()
+        let weekStart = calendar.dateInterval(of: .weekOfYear, for: today)?.start ?? today
+
+        // Sample entries
+        let sampleEntries = [
+            GratitudeEntry(
+                date: calendar.date(byAdding: .day, value: 0, to: weekStart) ?? today,
+                content: "Beautiful morning walk with crisp air and golden sunlight",
+                inkColor: .emeraldOfChivor,
+                font: .classicSerif
+            ),
+            GratitudeEntry(
+                date: calendar.date(byAdding: .day, value: 1, to: weekStart) ?? today,
+                content: "Yummy meal prep lunch.",
+                inkColor: .bleuPervenche,
+                font: .modernSans
+            ),
+            GratitudeEntry(
+                date: calendar.date(byAdding: .day, value: 2, to: weekStart) ?? today,
+                content: "Work from home in the am",
+                inkColor: .rougeHematite,
+                font: .casual
             )
-    }
-}
+        ]
 
-#Preview {
-    let calendar = Calendar.current
-    let today = Date()
-    let weekStart = calendar.dateInterval(of: .weekOfYear, for: today)?.start ?? today
-
-    // Sample entries
-    let sampleEntries = [
-        GratitudeEntry(
-            date: calendar.date(byAdding: .day, value: 0, to: weekStart) ?? today,
-            content: "Beautiful morning walk with crisp air and golden sunlight",
-            inkColor: .emeraldOfChivor,
-            font: .classicSerif
-        ),
-        GratitudeEntry(
-            date: calendar.date(byAdding: .day, value: 1, to: weekStart) ?? today,
-            content: "Yummy meal prep lunch.",
-            inkColor: .midnightBlue,
-            font: .modernSans
-        ),
-        GratitudeEntry(
-            date: calendar.date(byAdding: .day, value: 2, to: weekStart) ?? today,
-            content: "Work from home in the am",
-            inkColor: .burgundyRed,
-            font: .handwritten
+        return WeeklyJournalPageView(
+            weekStart: weekStart,
+            entries: sampleEntries,
+            onEntryTap: { _ in }
         )
-    ]
-
-    return WeeklyJournalPageView(
-        weekStart: weekStart,
-        entries: sampleEntries,
-        onEntryTap: { _ in }
-    )
+    }
 }

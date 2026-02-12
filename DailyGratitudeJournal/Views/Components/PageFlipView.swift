@@ -85,7 +85,7 @@ struct PageFlipView<Content: View>: View {
     }
 }
 
-#Preview {
+struct PageFlipView_Previews: PreviewProvider {
     struct PreviewContainer: View {
         @State private var currentPage = 0
         let pages = ["First Page", "Second Page", "Third Page", "Fourth Page"]
@@ -118,5 +118,7 @@ struct PageFlipView<Content: View>: View {
         }
     }
 
-    return PreviewContainer()
+    static var previews: some View {
+        PreviewContainer()
+    }
 }
