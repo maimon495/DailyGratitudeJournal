@@ -4,6 +4,10 @@
 <dict>
 	<key>ITSAppManagesNonExemptEncryption</key>
 	<false/>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>We use your device's advertising identifier to show you relevant ads that help keep this app free.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

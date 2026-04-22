@@ -38,26 +38,31 @@ struct TodayView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 28) {
-                    headerSection
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 28) {
+                        headerSection
 
-                    if streak > 0 {
-                        streakBadge
+                        if streak > 0 {
+                            streakBadge
+                        }
+
+                        if let entry = todaysEntry, !isEditing {
+                            completedEntryView(entry)
+                        } else {
+                            entryInputView
+                        }
+
+                        Spacer(minLength: 80)
                     }
-
-                    if let entry = todaysEntry, !isEditing {
-                        completedEntryView(entry)
-                    } else {
-                        entryInputView
-                    }
-
-                    Spacer(minLength: 80)
+                    .padding(.horizontal, JournalTheme.pageMargin)
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, JournalTheme.pageMargin)
-                .frame(maxWidth: .infinity)
+                .journalBackground()
+
+                BannerAdView()
+                    .frame(height: 50)
             }
-            .journalBackground()
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(JournalTheme.warmWhite, for: .navigationBar)

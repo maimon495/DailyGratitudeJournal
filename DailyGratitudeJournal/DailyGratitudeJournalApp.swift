@@ -5,6 +5,10 @@ import SwiftData
 import FirebaseCore
 #endif
 
+#if canImport(GoogleMobileAds)
+import GoogleMobileAds
+#endif
+
 @main
 struct DailyGratitudeJournalApp: App {
     @StateObject private var notificationManager = NotificationManager.shared
@@ -26,6 +30,10 @@ struct DailyGratitudeJournalApp: App {
         #if canImport(FirebaseCore)
         FirebaseApp.configure()
         #endif
+
+        #if canImport(GoogleMobileAds)
+        MobileAds.shared.start(completionHandler: nil)
+        #endif
     }
 
     var body: some Scene {
@@ -37,6 +45,9 @@ struct DailyGratitudeJournalApp: App {
                         .environmentObject(authService)
                         .onAppear {
                             notificationManager.clearBadge()
+                            Task {
+                                await ATTPermissionManager.shared.requestTrackingPermission()
+                            }
                         }
                 } else {
                     LoginView()
