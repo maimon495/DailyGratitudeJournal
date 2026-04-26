@@ -28,6 +28,9 @@
 		E806C6982F3D31EF00BE927B /* PageFlipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E806C6952F3D31EF00BE927B /* PageFlipView.swift */; };
 		E806C6992F3D31EF00BE927B /* WeeklyJournalPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E806C6962F3D31EF00BE927B /* WeeklyJournalPageView.swift */; };
 		E806C69A2F3D31EF00BE927B /* WeeklyJournalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E806C6972F3D31EF00BE927B /* WeeklyJournalView.swift */; };
+		AD00000001001 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = AD00000003001 /* GoogleMobileAds */; };
+		AD00000004001 /* ATTPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD00000004000 /* ATTPermissionManager.swift */; };
+		AD00000005001 /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD00000005000 /* BannerAdView.swift */; };
 		E87EB3292F313B3D00D7711E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = E87EB3282F313B3D00D7711E /* FirebaseAuth */; };
 		E87EB32B2F313B3D00D7711E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = E87EB32A2F313B3D00D7711E /* FirebaseCore */; };
 		E87EB32F2F313D6F00D7711E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = E87EB32E2F313D6F00D7711E /* GoogleSignIn */; };
@@ -58,6 +61,8 @@
 		A1000019000 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		E806C6952F3D31EF00BE927B /* PageFlipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageFlipView.swift; sourceTree = "<group>"; };
 		E806C6962F3D31EF00BE927B /* WeeklyJournalPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyJournalPageView.swift; sourceTree = "<group>"; };
+		AD00000004000 /* ATTPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ATTPermissionManager.swift; sourceTree = "<group>"; };
+		AD00000005000 /* BannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdView.swift; sourceTree = "<group>"; };
 		E806C6972F3D31EF00BE927B /* WeeklyJournalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyJournalView.swift; sourceTree = "<group>"; };
 		E87EB32C2F313C9D00D7711E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E893D0A42F3570A5006C7C43 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -68,6 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD00000001001 /* GoogleMobileAds in Frameworks */,
 				E87EB32B2F313B3D00D7711E /* FirebaseCore in Frameworks */,
 				E87EB3292F313B3D00D7711E /* FirebaseAuth in Frameworks */,
 				E87EB32F2F313D6F00D7711E /* GoogleSignIn in Frameworks */,
@@ -141,6 +147,7 @@
 				A1000008000 /* NotificationManager.swift */,
 				A1000017000 /* AuthService.swift */,
 				A1000018000 /* AppleSignInHelper.swift */,
+				AD00000004000 /* ATTPermissionManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -154,6 +161,7 @@
 				A1000010000 /* EntryDetailView.swift */,
 				A1000013000 /* JournalTheme.swift */,
 				A1000014000 /* InkColorPicker.swift */,
+				AD00000005000 /* BannerAdView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -210,6 +218,7 @@
 			);
 			mainGroup = A1000000020;
 			packageReferences = (
+				AD00000002001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 				E87EB3272F313B3D00D7711E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				E87EB32D2F313D6F00D7711E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
@@ -259,6 +268,8 @@
 				E806C6982F3D31EF00BE927B /* PageFlipView.swift in Sources */,
 				E806C6992F3D31EF00BE927B /* WeeklyJournalPageView.swift in Sources */,
 				E806C69A2F3D31EF00BE927B /* WeeklyJournalView.swift in Sources */,
+				AD00000004001 /* ATTPermissionManager.swift in Sources */,
+				AD00000005001 /* BannerAdView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,6 +477,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		AD00000002001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
 		E87EB3272F313B3D00D7711E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -485,6 +504,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AD00000003001 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AD00000002001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
 		E87EB3282F313B3D00D7711E /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E87EB3272F313B3D00D7711E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
