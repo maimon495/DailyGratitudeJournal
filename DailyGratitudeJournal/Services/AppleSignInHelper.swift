@@ -1,5 +1,6 @@
 import AuthenticationServices
 import CryptoKit
+import UIKit
 
 class AppleSignInHelper: NSObject {
     private var currentNonce: String?
@@ -20,6 +21,7 @@ class AppleSignInHelper: NSObject {
 
             let authorizationController = ASAuthorizationController(authorizationRequests: [request])
             authorizationController.delegate = self
+            authorizationController.presentationContextProvider = self
             authorizationController.performRequests()
         }
     }
@@ -40,6 +42,15 @@ class AppleSignInHelper: NSObject {
         let inputData = Data(input.utf8)
         let hashedData = SHA256.hash(data: inputData)
         return hashedData.compactMap { String(format: "%02x", $0) }.joined()
+    }
+}
+
+extension AppleSignInHelper: ASAuthorizationControllerPresentationContextProviding {
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow } ?? UIWindow()
     }
 }
 
