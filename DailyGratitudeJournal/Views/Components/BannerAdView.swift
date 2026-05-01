@@ -2,7 +2,7 @@ import SwiftUI
 
 // Replace with your real Ad Unit ID from AdMob console before release.
 // Use the test ID below during development to avoid policy violations.
-private let adUnitID = "ca-app-pub-3940256099942544/2934735716" // AdMob test banner ID
+private let adUnitID = "ca-app-pub-8780809101780422/8208596455"
 
 #if canImport(GoogleMobileAds)
 import GoogleMobileAds
