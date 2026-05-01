@@ -5,6 +5,7 @@ import UIKit
 class AppleSignInHelper: NSObject {
     private var currentNonce: String?
     private var continuation: CheckedContinuation<ASAuthorizationAppleIDCredential, Error>?
+    private var authorizationController: ASAuthorizationController?
 
     var nonce: String? { currentNonce }
 
@@ -19,10 +20,11 @@ class AppleSignInHelper: NSObject {
             request.requestedScopes = [.fullName, .email]
             request.nonce = sha256(currentNonce!)
 
-            let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-            authorizationController.delegate = self
-            authorizationController.presentationContextProvider = self
-            authorizationController.performRequests()
+            let controller = ASAuthorizationController(authorizationRequests: [request])
+            controller.delegate = self
+            controller.presentationContextProvider = self
+            authorizationController = controller
+            controller.performRequests()
         }
     }
 
@@ -57,6 +59,7 @@ extension AppleSignInHelper: ASAuthorizationControllerPresentationContextProvidi
 extension AppleSignInHelper: ASAuthorizationControllerDelegate {
     func authorizationController(controller: ASAuthorizationController,
                                  didCompleteWithAuthorization authorization: ASAuthorization) {
+        defer { authorizationController = nil }
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
             continuation?.resume(returning: appleIDCredential)
             continuation = nil
@@ -65,6 +68,7 @@ extension AppleSignInHelper: ASAuthorizationControllerDelegate {
 
     func authorizationController(controller: ASAuthorizationController,
                                  didCompleteWithError error: Error) {
+        defer { authorizationController = nil }
         continuation?.resume(throwing: error)
         continuation = nil
     }
