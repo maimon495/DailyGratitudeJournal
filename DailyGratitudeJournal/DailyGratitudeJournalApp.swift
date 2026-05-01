@@ -32,7 +32,7 @@ struct DailyGratitudeJournalApp: App {
         #endif
 
         #if canImport(GoogleMobileAds)
-        MobileAds.shared.start(completionHandler: nil)
+        MobileAds.shared.start { _ in }
         #endif
     }
 
