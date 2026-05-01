@@ -25,7 +25,7 @@ struct DailyGratitudeJournalApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-
+ 
     init() {
         #if canImport(FirebaseCore)
         FirebaseApp.configure()
