@@ -56,7 +56,7 @@ struct WeeklyJournalView: View {
                         emptyStateView
                     } else {
                         // Page flipping journal
-                        PageFlipView(
+                        PageCurlView(
                             pageCount: weeks.count,
                             currentPage: $currentWeekIndex
                         ) { index in
