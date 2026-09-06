@@ -9,6 +9,10 @@ private let journalPaperColor = UIColor(red: 1.0, green: 0.973, blue: 0.906, alp
 struct PageCurlView<Content: View>: UIViewControllerRepresentable {
     let pageCount: Int
     @Binding var currentPage: Int
+    /// Changes whenever the visible page's data changes, so the page can be
+    /// rebuilt. Rebuilding is necessary because SwiftData loads asynchronously
+    /// and a page is often constructed before its entries exist.
+    let contentVersion: Int
     let content: (Int) -> Content
 
     func makeCoordinator() -> Coordinator {
@@ -28,6 +32,7 @@ struct PageCurlView<Content: View>: UIViewControllerRepresentable {
         // mirrors the front and reads as a printing error.
         pageVC.isDoubleSided = false
 
+        context.coordinator.lastRenderedVersion = contentVersion
         let initialVC = context.coordinator.makeHostingController(for: currentPage)
         pageVC.setViewControllers([initialVC], direction: .forward, animated: false)
         return pageVC
@@ -36,16 +41,36 @@ struct PageCurlView<Content: View>: UIViewControllerRepresentable {
     func updateUIViewController(_ pageVC: UIPageViewController, context: Context) {
         context.coordinator.parent = self
 
-        guard let current = pageVC.viewControllers?.first as? JournalPageHostingController else { return }
+        guard pageCount > 0,
+              currentPage >= 0, currentPage < pageCount,
+              let current = pageVC.viewControllers?.first as? JournalPageHostingController else { return }
 
-        // The page index didn't change, but the data behind it may have.
-        // SwiftData loads asynchronously, so the first page is often built
-        // before any entries exist; without this the journal stays empty
-        // until you happen to turn a page.
+        // Same page, but its data may have changed. The page must be rebuilt
+        // rather than have its rootView swapped in place: pageCurl renders
+        // through a layer transform, and mutating a hosting controller's
+        // rootView inside that transform lays the content out at the wrong
+        // size, leaving it magnified and clipped.
         guard current.pageIndex != currentPage else {
-            current.update(rootView: content(currentPage))
+            if context.coordinator.lastRenderedVersion != contentVersion {
+                context.coordinator.lastRenderedVersion = contentVersion
+                let coordinator = context.coordinator
+                let page = currentPage
+                // Deferred to the next runloop pass. Rebuilding mid-layout,
+                // while the container still has provisional bounds, leaves the
+                // new page sized to those bounds — it renders magnified and
+                // clipped for the life of the page.
+                DispatchQueue.main.async { [weak pageVC] in
+                    guard let pageVC, pageVC.view.bounds.width > 0 else { return }
+                    guard let showing = pageVC.viewControllers?.first as? JournalPageHostingController,
+                          showing.pageIndex == page else { return }
+                    let refreshed = coordinator.makeHostingController(for: page)
+                    pageVC.setViewControllers([refreshed], direction: .forward, animated: false)
+                }
+            }
             return
         }
+
+        context.coordinator.lastRenderedVersion = contentVersion
 
         let direction: UIPageViewController.NavigationDirection = current.pageIndex < currentPage ? .forward : .reverse
         let newVC = context.coordinator.makeHostingController(for: currentPage)
@@ -56,6 +81,7 @@ struct PageCurlView<Content: View>: UIViewControllerRepresentable {
 
     class Coordinator: NSObject, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
         var parent: PageCurlView
+        var lastRenderedVersion: Int = 0
 
         init(_ parent: PageCurlView) {
             self.parent = parent
@@ -102,10 +128,5 @@ final class JournalPageHostingController: UIHostingController<AnyView> {
 
     @MainActor required dynamic init?(coder: NSCoder) {
         fatalError("init(coder:) not supported")
-    }
-
-    /// Swaps in freshly rendered content for the same page.
-    func update<V: View>(rootView newRootView: V) {
-        self.rootView = AnyView(newRootView)
     }
 }
