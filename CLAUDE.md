@@ -12,7 +12,9 @@
 ## App Structure
 ```
 DailyGratitudeJournal/
-├── DailyGratitudeJournalApp.swift   # App entry point, Firebase + AdMob init, ATT prompt
+├── DailyGratitudeJournalApp.swift   # App entry, Firebase init, then consent -> ATT
+├── Info.plist                       # GADApplicationIdentifier, ATT string, 50 SKAdNetworkItems
+├── PrivacyInfo.xcprivacy            # App privacy manifest (required for upload)
 ├── Models/
 │   ├── GratitudeEntry.swift         # SwiftData model
 │   ├── InkColor.swift               # 6 ink color options
@@ -29,6 +31,7 @@ DailyGratitudeJournal/
 │       ├── BannerAdView.swift       # AdMob banner (has #if canImport guard)
 │       ├── WeeklyJournalView.swift  # Page-flip weekly journal (has banner ad at bottom)
 │       ├── WeeklyJournalPageView.swift
+│       ├── PageCurlView.swift       # iBooks-style page curl
 │       ├── PageFlipView.swift
 │       ├── EntryDetailView.swift
 │       ├── JournalTheme.swift       # Design tokens (colors, fonts, styles)
@@ -37,40 +40,60 @@ DailyGratitudeJournal/
     ├── AuthService.swift
     ├── AppleSignInHelper.swift
     ├── NotificationManager.swift    # Daily push notifications
+    ├── ConsentManager.swift         # UMP consent; ONLY place ads SDK is started
     └── ATTPermissionManager.swift   # App Tracking Transparency prompt
 ```
 
 ## Active Branch
-`feature/ads-monetization` — branched from `claude/mobile-phone-access-Z7TqG`
+`feature/ads-monetization`
+
+## Current Version
+`MARKETING_VERSION = 1.1`, `CURRENT_PROJECT_VERSION = 10`, bundle ID
+`com.brianherz.DailyGratitudeJournal`, team `F669HYU266`, iPhone + iPad.
 
 ## What's Been Done
-### AdMob / Monetization (feature/ads-monetization)
-- Added `BannerAdView.swift` — wraps `GADBannerView` via `UIViewRepresentable`. Uses `#if canImport(GoogleMobileAds)` so the app builds before the SDK is installed. Falls back to a visible placeholder.
-- Added `ATTPermissionManager.swift` — requests iOS 14.5+ App Tracking Transparency permission with a 1s delay (required by Apple before showing the prompt).
-- Updated `DailyGratitudeJournalApp.swift` — calls `MobileAds.shared.start()` on launch and triggers `ATTPermissionManager` when the user hits the main screen.
-- Updated `TodayView.swift` — banner ad pinned to the bottom of the screen, below the scroll area.
-- Updated `WeeklyJournalView.swift` — banner ad placed below the search bar.
-- Updated `Info.plist` — added `GADApplicationIdentifier` (test ID) and `NSUserTrackingUsageDescription`.
-- Updated `project.pbxproj` — registered AdMob SPM package (`https://github.com/googleads/swift-package-manager-google-mobile-ads`, v11+), linked `GoogleMobileAds` in Frameworks build phase, and registered the two new Swift files in the Xcode project.
+### AdMob / Monetization
+- `BannerAdView.swift` — anchored **adaptive** banner via `UIViewRepresentable`, guarded by
+  `#if canImport(GoogleMobileAds)`. Renders nothing until `ConsentManager.canRequestAds` is true,
+  so no ad request is made before consent is resolved.
+- `ConsentManager.swift` — Google User Messaging Platform (UMP) consent flow. Required by Google
+  for EEA/UK users; without it AdMob stops serving them ads. **This is the only place the Mobile
+  Ads SDK is started** — do not call `GADMobileAds.sharedInstance().start` anywhere else.
+- `ATTPermissionManager.swift` — ATT prompt, fired *after* the UMP form so the two never collide.
+- `Info.plist` — real `GADApplicationIdentifier`, `NSUserTrackingUsageDescription`, and the
+  full set of 50 `SKAdNetworkItems` the SDK requires.
+- `PrivacyInfo.xcprivacy` — app privacy manifest. Declares `NSPrivacyTracking`, collected data
+  types, and the `UserDefaults` required-reason API (`CA92.1`, used by `NotificationManager`).
+  Missing this causes ITMS-91053 rejections on upload.
 
-## What Still Needs Doing (Monetization)
-1. **Create an AdMob account** at admob.google.com
-2. **Replace placeholder IDs** once the AdMob account is set up:
-   - `Info.plist` → `GADApplicationIdentifier`: replace `ca-app-pub-3940256099942544~1458002511`
-   - `BannerAdView.swift` → `adUnitID`: replace `ca-app-pub-3940256099942544/2934735716`
-   - (Both are currently Google's official test IDs — safe for development)
-3. **Verify SDK resolves** — open project in Xcode, SPM should auto-fetch Google Mobile Ads
+### API version note
+The SDK is pinned to **Google Mobile Ads 11.13.0** (`upToNextMajorVersion` from 11.0.0), which uses
+the **`GAD`/`UMP`-prefixed** API (`GADBannerView`, `GADRequest`, `UMPConsentInformation`).
+Google's current docs show the unprefixed v12+ names (`BannerView`, `ConsentInformation`) — those
+will not compile here. Moving to v12+ is a breaking rename across `BannerAdView` and `ConsentManager`.
 
-## App Store Readiness Checklist
-- [ ] Apple Developer account ($99/year) — developer.apple.com
-- [ ] Set real Bundle ID (currently `com.brianherz.DailyGratitudeJournal`)
-- [ ] App icon 1024×1024px PNG (no alpha)
-- [ ] Screenshots for iPhone 6.7" and 6.5"
-- [ ] Privacy policy URL (required — AdMob and Firebase Auth both collect data)
-- [ ] App Store Connect listing (name, description, keywords, category)
-- [ ] Privacy Nutrition Labels filled out in App Store Connect
-- [ ] Replace AdMob test IDs with real ones
-- [ ] Archive and upload via Xcode → Product → Archive
+### Auth
+- Firebase Auth with Sign in with Apple + Google. `AuthService.deleteAccount()` implements
+  in-app account deletion (App Store Review Guideline 5.1.1(v)); Settings deletes the Firebase
+  user first, then the local SwiftData entries, so a failed delete never destroys journal data.
+- The `applesignin` entitlement is applied to **both** Debug and Release configs. It was
+  Release-only, which broke Sign in with Apple in Debug builds on device.
+
+## What Still Needs Doing
+1. **Signing certificates** — this Mac has *zero* valid code-signing identities and no
+   provisioning profiles, so `xcodebuild archive` fails with
+   `No signing certificate "iOS Development" found` for team `F669HYU266`.
+   Fix in Xcode → Settings → Accounts → add the Apple ID → Manage Certificates.
+2. **Privacy policy URL** — set `SettingsView.privacyPolicyURLString`. It is `""` today, which
+   hides the row rather than shipping a dead link. App Store Connect requires a live URL.
+3. **Reconcile Privacy Nutrition Labels** in App Store Connect with `PrivacyInfo.xcprivacy`.
+4. **iPad screenshots** — `TARGETED_DEVICE_FAMILY = "1,2"` means the App Store requires iPad
+   screenshots too. Drop iPad support if you don't want to design/test for it.
+5. **Verify the banner renders** while signed in — ad rendering sits behind the auth gate and
+   has not been visually confirmed on device.
+6. **Account deletion + reauthentication** — Firebase requires a recent sign-in to delete.
+   The current code surfaces a "sign out and back in" message on `requiresRecentLogin`
+   rather than running a full reauth flow.
 
 ## Key Design Tokens (JournalTheme.swift)
 - `JournalTheme.warmWhite` — navigation bar background

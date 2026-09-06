@@ -2,11 +2,33 @@ import SwiftUI
 import SwiftData
 
 struct SettingsView: View {
+    /// Public privacy policy URL. App Store Connect requires one because the
+    /// app collects data via AdMob and Firebase. Served by GitHub Pages from
+    /// the repo's `docs/` folder; if this is ever set back to an empty string
+    /// the row hides itself rather than shipping a dead link.
+    private static let privacyPolicyURLString =
+        "https://maimon495.github.io/DailyGratitudeJournal/privacy-policy.html"
+
+    private static var privacyPolicyURL: URL? {
+        privacyPolicyURLString.isEmpty ? nil : URL(string: privacyPolicyURLString)
+    }
+
     @EnvironmentObject private var notificationManager: NotificationManager
     @EnvironmentObject private var authService: AuthService
+    @Environment(\.modelContext) private var modelContext
+    @ObservedObject private var consentManager = ConsentManager.shared
     @Query(sort: \GratitudeEntry.date, order: .reverse) private var entries: [GratitudeEntry]
 
     @State private var showingNotificationAlert = false
+    @State private var showingDeleteAccountAlert = false
+    @State private var showingDeleteError = false
+
+    /// Marketing version and build, read from the bundle so this can't drift.
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
+        return "\(version) (\(build))"
+    }
 
     private var totalEntries: Int {
         entries.count
@@ -213,6 +235,33 @@ struct SettingsView: View {
                                 }
                                 .padding()
                             }
+
+                            Divider()
+                                .background(JournalTheme.goldAccent.opacity(0.2))
+
+                            // Required by App Store Review Guideline 5.1.1(v):
+                            // apps offering account creation must offer deletion.
+                            Button {
+                                showingDeleteAccountAlert = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: "trash")
+                                        .foregroundStyle(.red)
+                                        .frame(width: 24)
+
+                                    Text("Delete Account")
+                                        .font(JournalTheme.serifFont(size: 16))
+                                        .foregroundStyle(.red)
+
+                                    Spacer()
+
+                                    if authService.isLoading {
+                                        ProgressView()
+                                    }
+                                }
+                                .padding()
+                            }
+                            .disabled(authService.isLoading)
                         }
                         .background(JournalTheme.cream)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -235,11 +284,55 @@ struct SettingsView: View {
 
                                 Spacer()
 
-                                Text("1.0.0")
+                                Text(appVersion)
                                     .font(JournalTheme.serifFont(size: 16))
                                     .foregroundStyle(JournalTheme.inkCharcoal.opacity(0.5))
                             }
                             .padding()
+
+                            // Shown only where Google requires a way to reopen
+                            // consent choices (EEA / UK).
+                            if consentManager.isPrivacyOptionsRequired {
+                                Divider()
+                                    .background(JournalTheme.goldAccent.opacity(0.2))
+
+                                Button {
+                                    consentManager.presentPrivacyOptionsForm()
+                                } label: {
+                                    HStack {
+                                        Text("Ad Privacy Settings")
+                                            .font(JournalTheme.serifFont(size: 16))
+                                            .foregroundStyle(JournalTheme.inkNavy)
+
+                                        Spacer()
+
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                            .foregroundStyle(JournalTheme.inkCharcoal.opacity(0.4))
+                                    }
+                                    .padding()
+                                }
+                            }
+
+                            if let url = Self.privacyPolicyURL {
+                                Divider()
+                                    .background(JournalTheme.goldAccent.opacity(0.2))
+
+                                Link(destination: url) {
+                                    HStack {
+                                        Text("Privacy Policy")
+                                            .font(JournalTheme.serifFont(size: 16))
+                                            .foregroundStyle(JournalTheme.inkNavy)
+
+                                        Spacer()
+
+                                        Image(systemName: "arrow.up.right.square")
+                                            .font(.caption)
+                                            .foregroundStyle(JournalTheme.inkCharcoal.opacity(0.4))
+                                    }
+                                    .padding()
+                                }
+                            }
                         }
                         .background(JournalTheme.cream)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -271,7 +364,39 @@ struct SettingsView: View {
             } message: {
                 Text("Please enable notifications in Settings to receive daily reminders.")
             }
+            .alert("Delete Account?", isPresented: $showingDeleteAccountAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) {
+                    Task { await deleteAccount() }
+                }
+            } message: {
+                Text("This permanently deletes your account and all \(totalEntries) journal \(totalEntries == 1 ? "entry" : "entries") on this device. This can't be undone.")
+            }
+            .alert(
+                "Couldn't Delete Account",
+                isPresented: $showingDeleteError,
+                presenting: authService.error
+            ) { _ in
+                Button("OK", role: .cancel) {}
+            } message: { error in
+                Text(error.localizedDescription)
+            }
         }
+    }
+
+    /// Deletes the account, then the on-device journal entries. Local entries
+    /// are only cleared once the account deletion succeeds, so a failed delete
+    /// never destroys the user's writing.
+    private func deleteAccount() async {
+        guard await authService.deleteAccount() else {
+            showingDeleteError = true
+            return
+        }
+
+        for entry in entries {
+            modelContext.delete(entry)
+        }
+        try? modelContext.save()
     }
 
     private func entriesWithInk(_ ink: InkColor) -> Int {

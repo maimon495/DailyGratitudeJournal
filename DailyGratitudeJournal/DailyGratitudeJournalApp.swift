@@ -13,6 +13,7 @@ import GoogleMobileAds
 struct DailyGratitudeJournalApp: App {
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var authService = AuthService.shared
+    @StateObject private var consentManager = ConsentManager.shared
     @State private var showSplash = true
 
     var sharedModelContainer: ModelContainer = {
@@ -31,9 +32,8 @@ struct DailyGratitudeJournalApp: App {
         FirebaseApp.configure()
         #endif
 
-        #if canImport(GoogleMobileAds)
-        GADMobileAds.sharedInstance().start { _ in }
-        #endif
+        // The Mobile Ads SDK is started by ConsentManager once UMP consent
+        // allows it — starting it here would request ads before consent.
     }
 
     var body: some Scene {
@@ -43,11 +43,13 @@ struct DailyGratitudeJournalApp: App {
                     ContentView()
                         .environmentObject(notificationManager)
                         .environmentObject(authService)
-                        .onAppear {
+                        .environmentObject(consentManager)
+                        .task {
                             notificationManager.clearBadge()
-                            Task {
-                                await ATTPermissionManager.shared.requestTrackingPermission()
-                            }
+                            // Google's consent form must be resolved before the
+                            // ATT prompt, so the two never compete for the screen.
+                            await consentManager.gatherConsentAndStartAds()
+                            await ATTPermissionManager.shared.requestTrackingPermission()
                         }
                 } else {
                     LoginView()

@@ -29,6 +29,8 @@
 		AD00000004001 /* ATTPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD00000004000 /* ATTPermissionManager.swift */; };
 		AD00000005001 /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD00000005000 /* BannerAdView.swift */; };
 		AD00000006001 /* PageCurlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD00000006000 /* PageCurlView.swift */; };
+		AD00000007001 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = AD00000007000 /* PrivacyInfo.xcprivacy */; };
+		AD00000008001 /* ConsentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD00000008000 /* ConsentManager.swift */; };
 		E806C6982F3D31EF00BE927B /* PageFlipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E806C6952F3D31EF00BE927B /* PageFlipView.swift */; };
 		E806C6992F3D31EF00BE927B /* WeeklyJournalPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E806C6962F3D31EF00BE927B /* WeeklyJournalPageView.swift */; };
 		E806C69A2F3D31EF00BE927B /* WeeklyJournalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E806C6972F3D31EF00BE927B /* WeeklyJournalView.swift */; };
@@ -63,6 +65,8 @@
 		AD00000004000 /* ATTPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ATTPermissionManager.swift; sourceTree = "<group>"; };
 		AD00000005000 /* BannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdView.swift; sourceTree = "<group>"; };
 		AD00000006000 /* PageCurlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageCurlView.swift; sourceTree = "<group>"; };
+		AD00000007000 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		AD00000008000 /* ConsentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsentManager.swift; sourceTree = "<group>"; };
 		E806C6952F3D31EF00BE927B /* PageFlipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageFlipView.swift; sourceTree = "<group>"; };
 		E806C6962F3D31EF00BE927B /* WeeklyJournalPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyJournalPageView.swift; sourceTree = "<group>"; };
 		E806C6972F3D31EF00BE927B /* WeeklyJournalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyJournalView.swift; sourceTree = "<group>"; };
@@ -103,6 +107,7 @@
 				E8AFD3092FA547D1006D7174 /* DailyGratitudeJournalRelease.entitlements */,
 				E893D0A42F3570A5006C7C43 /* GoogleService-Info.plist */,
 				E87EB32C2F313C9D00D7711E /* Info.plist */,
+				AD00000007000 /* PrivacyInfo.xcprivacy */,
 				A1000001000 /* DailyGratitudeJournalApp.swift */,
 				A1000000050 /* Models */,
 				A1000000060 /* Views */,
@@ -152,6 +157,7 @@
 				A1000017000 /* AuthService.swift */,
 				A1000018000 /* AppleSignInHelper.swift */,
 				AD00000004000 /* ATTPermissionManager.swift */,
+				AD00000008000 /* ConsentManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -242,6 +248,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000011001 /* Assets.xcassets in Resources */,
+				AD00000007001 /* PrivacyInfo.xcprivacy in Resources */,
 				E893D0A52F3570A5006C7C43 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -276,6 +283,7 @@
 				AD00000004001 /* ATTPermissionManager.swift in Sources */,
 				AD00000005001 /* BannerAdView.swift in Sources */,
 				AD00000006001 /* PageCurlView.swift in Sources */,
+				AD00000008001 /* ConsentManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -406,8 +414,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = DailyGratitudeJournal/DailyGratitudeJournalRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = F669HYU266;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -426,7 +435,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -437,7 +446,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DailyGratitudeJournal/DailyGratitudeJournalRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = F669HYU266;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -456,7 +465,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

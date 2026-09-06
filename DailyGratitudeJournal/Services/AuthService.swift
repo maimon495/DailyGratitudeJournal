@@ -20,6 +20,8 @@ enum AuthError: LocalizedError {
     case noRootViewController
     case invalidCredential
     case firebaseNotConfigured
+    case deleteAccountFailed(String)
+    case reauthenticationRequired
 
     var errorDescription: String? {
         switch self {
@@ -33,6 +35,10 @@ enum AuthError: LocalizedError {
             return "Invalid credentials"
         case .firebaseNotConfigured:
             return "Firebase is not configured. Please add Firebase packages."
+        case .deleteAccountFailed(let message):
+            return "Couldn't delete your account: \(message)"
+        case .reauthenticationRequired:
+            return "For your security, please sign out and sign back in, then delete your account again."
         }
     }
 }
@@ -161,6 +167,47 @@ final class AuthService: ObservableObject {
         isLoading = false
         #else
         error = .firebaseNotConfigured
+        #endif
+    }
+
+    // MARK: - Delete Account
+
+    /// Permanently deletes the signed-in account.
+    ///
+    /// App Store Review Guideline 5.1.1(v) requires any app that supports
+    /// account creation to also offer in-app account deletion.
+    /// Returns true when the account was deleted.
+    @discardableResult
+    func deleteAccount() async -> Bool {
+        #if canImport(FirebaseAuth)
+        guard let user = Auth.auth().currentUser else {
+            error = .deleteAccountFailed("No signed-in user")
+            return false
+        }
+
+        isLoading = true
+        error = nil
+
+        do {
+            try await user.delete()
+            #if canImport(GoogleSignIn)
+            GIDSignIn.sharedInstance.signOut()
+            #endif
+            isLoading = false
+            return true
+        } catch {
+            // Firebase requires a recent sign-in before it will delete an account.
+            if (error as NSError).code == AuthErrorCode.requiresRecentLogin.rawValue {
+                self.error = .reauthenticationRequired
+            } else {
+                self.error = .deleteAccountFailed(error.localizedDescription)
+            }
+            isLoading = false
+            return false
+        }
+        #else
+        error = .firebaseNotConfigured
+        return false
         #endif
     }
 
