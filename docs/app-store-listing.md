@@ -197,7 +197,8 @@ Connect scales it down for smaller devices.
 
 - [x] Distribution certificate exists — archive and signed .ipa verified
 - [x] Support email: gratitude.journal.support@gmail.com
-- [ ] Bundle ID `com.brianherz.DailyGratitudeJournal` registered with Sign in with Apple
+- [x] Bundle ID registered with Sign in with Apple — confirmed in the App Store
+      provisioning profile embedded in the signed .ipa
 - [x] GitHub Pages enabled (main → /docs)
 - [x] Privacy policy + support page live (both return 200)
 - [x] `privacyPolicyURLString` set in `SettingsView.swift`
