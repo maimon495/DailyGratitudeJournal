@@ -28,18 +28,40 @@ final class ConsentManager: ObservableObject {
     @Published private(set) var isPrivacyOptionsRequired = false
 
     private var didStartMobileAds = false
+    private var retryTask: Task<Void, Never>?
 
     private init() {}
 
     /// Gathers consent, then starts the ads SDK if it is permitted.
     /// Safe to call more than once; the SDK is only started on the first pass.
+    ///
+    /// Returns as soon as the first attempt resolves so the caller can move on
+    /// to the ATT prompt — Google's consent endpoint can hang for ten seconds,
+    /// and the tracking prompt should not sit behind that. If ads still can't
+    /// be requested afterwards, retries continue in the background.
     func gatherConsentAndStartAds() async {
         #if canImport(UserMessagingPlatform)
+        await runConsentPass()
+
+        if !UMPConsentInformation.sharedInstance.canRequestAds {
+            scheduleRetries()
+        }
+        #else
+        // No UMP available (e.g. SDK not resolved) — fall back to starting ads.
+        startMobileAds()
+        #endif
+    }
+
+    #if canImport(UserMessagingPlatform)
+    /// One full consent cycle: refresh consent info, then present the form if
+    /// one is required. Starts the ads SDK at each point it becomes allowed.
+    private func runConsentPass() async {
         let parameters = UMPRequestParameters()
         parameters.tagForUnderAgeOfConsent = false
 
-        // Errors here are non-fatal — usually no network. We still consult
-        // canRequestAds afterwards, which reflects any previously stored consent.
+        // A failure here is usually a network problem. It is not fatal — any
+        // previously stored consent still counts, so canRequestAds is always
+        // consulted afterwards regardless of the error.
         if let error = await requestConsentInfoUpdate(with: parameters) {
             print("ConsentManager: consent info update failed — \(error.localizedDescription)")
         }
@@ -54,11 +76,36 @@ final class ConsentManager: ObservableObject {
 
         refreshPrivacyOptionsRequirement()
         startMobileAdsIfAllowed()
-        #else
-        // No UMP available (e.g. SDK not resolved) — fall back to starting ads.
-        startMobileAds()
-        #endif
     }
+
+    /// Retries the consent cycle with backoff. Without this a single failed
+    /// request — a dropped connection at launch, say — would leave the app
+    /// with no ads until it was killed and relaunched.
+    private func scheduleRetries() {
+        guard retryTask == nil else { return }
+
+        retryTask = Task { [weak self] in
+            for delay in [2.0, 8.0, 20.0] {
+                try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                guard !Task.isCancelled, let self else { return }
+                guard !UMPConsentInformation.sharedInstance.canRequestAds else { return }
+                await self.runConsentPass()
+            }
+            self?.retryTask = nil
+        }
+    }
+
+    /// Called when the app returns to the foreground, so a user who was
+    /// offline at launch starts seeing ads once they reconnect.
+    func retryIfNeeded() {
+        guard !didStartMobileAds else { return }
+        guard !UMPConsentInformation.sharedInstance.canRequestAds else {
+            startMobileAdsIfAllowed()
+            return
+        }
+        scheduleRetries()
+    }
+    #endif
 
     /// Reopens the consent form so a user can change their choices.
     /// Only meaningful when `isPrivacyOptionsRequired` is true.
@@ -111,6 +158,8 @@ final class ConsentManager: ObservableObject {
     private func startMobileAds() {
         guard !didStartMobileAds else { return }
         didStartMobileAds = true
+        retryTask?.cancel()
+        retryTask = nil
 
         #if canImport(GoogleMobileAds)
         GADMobileAds.sharedInstance().start { [weak self] _ in
