@@ -61,7 +61,6 @@ struct TodayView: View {
                 .journalBackground()
 
                 BannerAdView()
-                    .frame(height: 50)
             }
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.inline)
