@@ -370,7 +370,7 @@ struct SettingsView: View {
                     Task { await deleteAccount() }
                 }
             } message: {
-                Text("This permanently deletes your account and all \(totalEntries) journal \(totalEntries == 1 ? "entry" : "entries") on this device. This can't be undone.")
+                Text("This permanently deletes your account and all \(totalEntries) journal \(totalEntries == 1 ? "entry" : "entries") on this device. You'll be asked to sign in once more to confirm it's you. This can't be undone.")
             }
             .alert(
                 "Couldn't Delete Account",
