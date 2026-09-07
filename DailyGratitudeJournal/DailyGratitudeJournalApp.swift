@@ -15,6 +15,7 @@ struct DailyGratitudeJournalApp: App {
     @StateObject private var authService = AuthService.shared
     @StateObject private var consentManager = ConsentManager.shared
     @State private var showSplash = true
+    @Environment(\.scenePhase) private var scenePhase
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([GratitudeEntry.self])
@@ -64,5 +65,12 @@ struct DailyGratitudeJournalApp: App {
             }
         }
         .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { _, newPhase in
+            // A launch with no network leaves consent unresolved and ads off.
+            // Coming back to the foreground is the natural moment to retry.
+            if newPhase == .active {
+                consentManager.retryIfNeeded()
+            }
+        }
     }
 }

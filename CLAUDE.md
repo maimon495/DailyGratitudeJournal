@@ -48,8 +48,12 @@ DailyGratitudeJournal/
 `feature/ads-monetization`
 
 ## Current Version
-`MARKETING_VERSION = 1.1`, `CURRENT_PROJECT_VERSION = 10`, bundle ID
-`com.brianherz.DailyGratitudeJournal`, team `F669HYU266`, iPhone + iPad.
+`MARKETING_VERSION = 1.0`, `CURRENT_PROJECT_VERSION = 11`, bundle ID
+`com.brianherz.DailyGratitudeJournal`, team `F669HYU266`, **iPhone only**.
+
+The App Store Connect version record is **1.0** — a build only attaches to a
+version record whose number matches exactly, so keep these in step. App Store
+Connect app name is "Gratitude Journaling Every Day", Apple ID `6758810550`.
 
 ## What's Been Done
 ### AdMob / Monetization
@@ -66,6 +70,33 @@ DailyGratitudeJournal/
   types, and the `UserDefaults` required-reason API (`CA92.1`, used by `NotificationManager`).
   Missing this causes ITMS-91053 rejections on upload.
 
+### PageCurlView — read before touching it
+`.pageCurl` renders each page through a **layer transform**, which makes it
+hostile to the usual SwiftUI-in-UIKit tricks. Two rules learned the hard way:
+
+1. **Never lay a page out mid-update.** Swapping a `UIHostingController`'s
+   `rootView` in place, or calling `setViewControllers` directly inside
+   `updateUIViewController`, lays the content out against the container's
+   provisional bounds. The page then renders **magnified and clipped** — text
+   blown up, date headers off screen — and stays that way. Rebuild on the next
+   runloop pass, after checking `view.bounds.width > 0`.
+2. **Pages must be opaque.** A transparent page curls into a black or ghosted
+   sheet instead of paper.
+
+Pages are snapshots, not live views: `WeeklyJournalPageView` is handed concrete
+entries, so it does **not** react to SwiftData changes on its own. `PageCurlView`
+takes a `contentVersion` and rebuilds when it changes. Without that the journal
+shows an empty week forever, because pages get built before SwiftData finishes
+loading.
+
+### Ads depend on a reachable consent endpoint
+`ConsentManager` gates the ads SDK on `UMPConsentInformation.canRequestAds`.
+If Google's `fundingchoicesmessages.google.com` is unreachable, consent never
+resolves and **no ads load at all**. It retries with backoff and again on
+foreground. Note this Mac's shell has no direct internet egress (proxy only),
+so that endpoint times out in the simulator here — that is the environment,
+not the app.
+
 ### API version note
 The SDK is pinned to **Google Mobile Ads 11.13.0** (`upToNextMajorVersion` from 11.0.0), which uses
 the **`GAD`/`UMP`-prefixed** API (`GADBannerView`, `GADRequest`, `UMPConsentInformation`).
@@ -80,20 +111,24 @@ will not compile here. Moving to v12+ is a breaking rename across `BannerAdView`
   Release-only, which broke Sign in with Apple in Debug builds on device.
 
 ## What Still Needs Doing
-1. **Signing certificates** — this Mac has *zero* valid code-signing identities and no
-   provisioning profiles, so `xcodebuild archive` fails with
-   `No signing certificate "iOS Development" found` for team `F669HYU266`.
-   Fix in Xcode → Settings → Accounts → add the Apple ID → Manage Certificates.
-2. **Privacy policy URL** — set `SettingsView.privacyPolicyURLString`. It is `""` today, which
-   hides the row rather than shipping a dead link. App Store Connect requires a live URL.
-3. **Reconcile Privacy Nutrition Labels** in App Store Connect with `PrivacyInfo.xcprivacy`.
-4. **iPad screenshots** — `TARGETED_DEVICE_FAMILY = "1,2"` means the App Store requires iPad
-   screenshots too. Drop iPad support if you don't want to design/test for it.
-5. **Verify the banner renders** while signed in — ad rendering sits behind the auth gate and
-   has not been visually confirmed on device.
-6. **Account deletion + reauthentication** — Firebase requires a recent sign-in to delete.
-   The current code surfaces a "sign out and back in" message on `requiresRecentLogin`
-   rather than running a full reauth flow.
+Done since: signing works (archive + distribution-signed .ipa verified), privacy
+policy and support page are live on GitHub Pages and wired into Settings, DSA
+trader status is complete, and build 1.0 (10) is on TestFlight.
+
+1. **Verify the banner renders on device** — still the biggest unknown. Ad
+   rendering sits behind the auth gate, so it has never been confirmed on real
+   hardware. A brand-new AdMob app also gets little or no fill until the app is
+   published and linked, so an empty banner may be expected rather than broken.
+2. **Verify account deletion on device** — a reviewer will test it.
+3. **Reconcile Privacy Nutrition Labels** in App Store Connect with
+   `PrivacyInfo.xcprivacy` (crib sheet in `docs/app-store-listing.md`).
+4. **Replace the 5 stale 6.5" screenshots** in App Store Connect with the four
+   6.9" captures in `docs/screenshots/`.
+5. **Account deletion + reauthentication** — Firebase requires a recent sign-in
+   to delete. The code surfaces a "sign out and back in" message on
+   `requiresRecentLogin` rather than running a full reauth flow.
+6. **app-ads.txt** — needs root-level hosting (`maimon495.github.io/app-ads.txt`,
+   i.e. a separate user-page repo). Only matters once live.
 
 ## Key Design Tokens (JournalTheme.swift)
 - `JournalTheme.warmWhite` — navigation bar background

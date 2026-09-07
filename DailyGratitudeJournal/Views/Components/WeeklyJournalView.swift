@@ -47,6 +47,23 @@ struct WeeklyJournalView: View {
         return weekStarts.sorted(by: >)
     }
 
+    /// Identifies the content currently on screen. Only the visible week is
+    /// hashed, so this stays cheap no matter how long the journal gets.
+    private var visiblePageVersion: Int {
+        var hasher = Hasher()
+        hasher.combine(weeks.count)
+        let index = min(max(currentWeekIndex, 0), max(weeks.count - 1, 0))
+        if weeks.indices.contains(index) {
+            for entry in entriesForWeek(weeks[index]) {
+                hasher.combine(entry.id)
+                hasher.combine(entry.content)
+                hasher.combine(entry.inkColorRaw)
+                hasher.combine(entry.fontRaw)
+            }
+        }
+        return hasher.finalize()
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -58,15 +75,24 @@ struct WeeklyJournalView: View {
                         // Page flipping journal
                         PageCurlView(
                             pageCount: weeks.count,
-                            currentPage: $currentWeekIndex
+                            currentPage: $currentWeekIndex,
+                            contentVersion: visiblePageVersion
                         ) { index in
-                            WeeklyJournalPageView(
-                                weekStart: weeks[index],
-                                entries: entriesForWeek(weeks[index]),
+                            // Searching shrinks the week list. Without clamping,
+                            // a stale page index reads past the end and crashes.
+                            let week = weeks[min(max(index, 0), weeks.count - 1)]
+                            return WeeklyJournalPageView(
+                                weekStart: week,
+                                entries: entriesForWeek(week),
                                 onEntryTap: { entry in
                                     selectedEntry = entry
                                 }
                             )
+                        }
+                        .onChange(of: weeks.count) { _, newCount in
+                            if currentWeekIndex >= newCount {
+                                currentWeekIndex = max(newCount - 1, 0)
+                            }
                         }
 
                         // Page indicator
