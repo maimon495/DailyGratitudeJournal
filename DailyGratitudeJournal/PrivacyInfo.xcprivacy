@@ -6,11 +6,12 @@
 	<key>NSPrivacyTracking</key>
 	<true/>
 
-	<!-- The app itself contacts no tracking domains directly. GoogleMobileAds,
-	     UserMessagingPlatform and FirebaseAnalytics declare their own domains
-	     in their bundled privacy manifests. -->
-	<key>NSPrivacyTrackingDomains</key>
-	<array/>
+	<!-- NSPrivacyTrackingDomains is deliberately absent, not empty. The app
+	     contacts no tracking domains itself; GoogleMobileAds,
+	     UserMessagingPlatform and FirebaseAnalytics declare their own in their
+	     bundled manifests, and Apple aggregates them. Declaring the key as an
+	     empty array alongside NSPrivacyTracking=true is rejected at upload as
+	     ITMS-91064 "Invalid tracking information". -->
 
 	<key>NSPrivacyCollectedDataTypes</key>
 	<array>
