@@ -103,7 +103,6 @@ struct WeeklyJournalView: View {
                         bottomSearchBar
 
                         BannerAdView()
-                            .frame(height: 50)
                     }
                 }
                 .journalBackground()
