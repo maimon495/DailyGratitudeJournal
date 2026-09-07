@@ -97,6 +97,40 @@ foreground. Note this Mac's shell has no direct internet egress (proxy only),
 so that endpoint times out in the simulator here — that is the environment,
 not the app.
 
+### Privacy manifest — the ITMS-91064 trap
+`PrivacyInfo.xcprivacy` must keep `NSPrivacyTracking = true` (the app ships
+`NSUserTrackingUsageDescription`, and App Store Connect independently reports
+`BINARY_INDICATES_APP_TRACKS_USERS`). Given that, **`NSPrivacyTrackingDomains`
+must be present and non-empty** — an empty array *or* an absent key is rejected
+at automated validation as:
+
+    ITMS-91064: Invalid tracking information
+
+Apple's message reads "NSPrivacyTracking must be true if NSPrivacyTrackingDomains
+isn't empty", which is the inverse of the rule actually enforced. Builds 13 and 14
+(empty array) and build 15 (key removed) were all rejected; build 16, with the
+domains listed, passed.
+
+The bundled GoogleMobileAds and UserMessagingPlatform frameworks declare **neither**
+`NSPrivacyTracking` nor `NSPrivacyTrackingDomains` in their own manifests, so the
+app's manifest is the only place these can come from. Don't assume the SDKs supply
+them.
+
+### Submitting via the App Store Connect API
+Most of a submission can be driven by API with a key at
+`~/.appstoreconnect/private_keys/`; `xcrun altool` accepts the same key for
+uploading builds. Two things cannot: the **App Privacy questionnaire**
+(`appDataUsages` is not an exposed resource — it must be done in the web UI and
+explicitly **Published**), and creating the app record itself.
+
+Gotchas met along the way: pricing must be set explicitly even for a free app;
+`copyright` is required on the version; the privacy policy URL lives on
+`appInfoLocalizations`, not the version localization; each new build needs its own
+`usesNonExemptEncryption` answer; and a version marked `INVALID_BINARY` requires a
+**new build** — the same binary cannot be resubmitted.
+
+`~/.appstoreconnect/tools/check_status.py` reports current version/submission state.
+
 ### API version note
 The SDK is pinned to **Google Mobile Ads 11.13.0** (`upToNextMajorVersion` from 11.0.0), which uses
 the **`GAD`/`UMP`-prefixed** API (`GADBannerView`, `GADRequest`, `UMPConsentInformation`).

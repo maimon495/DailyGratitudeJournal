@@ -6,11 +6,20 @@
 	<key>NSPrivacyTracking</key>
 	<true/>
 
-	<!-- The app itself contacts no tracking domains directly. GoogleMobileAds,
-	     UserMessagingPlatform and FirebaseAnalytics declare their own domains
-	     in their bundled privacy manifests. -->
+	<!-- Apple requires NSPrivacyTrackingDomains to be present and non-empty
+	     whenever NSPrivacyTracking is true; an empty or absent key is rejected
+	     as ITMS-91064 "Invalid tracking information". The bundled Google SDKs
+	     declare no tracking domains of their own, so the domains their ad and
+	     analytics traffic reaches are listed here. -->
 	<key>NSPrivacyTrackingDomains</key>
-	<array/>
+	<array>
+		<!-- Google Mobile Ads (AdMob) ad serving -->
+		<string>googleads.g.doubleclick.net</string>
+		<string>pagead2.googlesyndication.com</string>
+		<string>googleadservices.com</string>
+		<!-- Firebase Analytics / GoogleAppMeasurement -->
+		<string>app-measurement.com</string>
+	</array>
 
 	<key>NSPrivacyCollectedDataTypes</key>
 	<array>
