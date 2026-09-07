@@ -63,6 +63,11 @@ final class AuthService: ObservableObject {
     private var authStateListener: AuthStateDidChangeListenerHandle?
     #endif
 
+    /// Held while an Apple re-authentication request is in flight. Letting the
+    /// helper deallocate mid-request is what produced "Sign in with Apple
+    /// error 1000" previously.
+    private var appleReauthHelper: AppleSignInHelper?
+
     private init() {
         setupAuthStateListener()
     }
@@ -176,6 +181,13 @@ final class AuthService: ObservableObject {
     ///
     /// App Store Review Guideline 5.1.1(v) requires any app that supports
     /// account creation to also offer in-app account deletion.
+    ///
+    /// Firebase only deletes an account for a recently authenticated user, and
+    /// a session more than a few minutes old does not qualify. So the user is
+    /// re-authenticated with their original provider first — otherwise deletion
+    /// dead-ends for anyone who did not just sign in, which a reviewer would
+    /// hit and reject.
+    ///
     /// Returns true when the account was deleted.
     @discardableResult
     func deleteAccount() async -> Bool {
@@ -189,15 +201,39 @@ final class AuthService: ObservableObject {
         error = nil
 
         do {
+            // Prove identity again, and collect Apple's authorization code if
+            // that is the provider — Apple requires the token be revoked when
+            // an account is deleted, not merely unlinked.
+            let appleAuthorizationCode = try await reauthenticate(user)
+
+            if let appleAuthorizationCode {
+                // Best effort: revocation failing should not block the user
+                // from deleting their account.
+                do {
+                    try await Auth.auth().revokeToken(withAuthorizationCode: appleAuthorizationCode)
+                } catch {
+                    print("AuthService: Apple token revocation failed — \(error.localizedDescription)")
+                }
+            }
+
             try await user.delete()
             #if canImport(GoogleSignIn)
             GIDSignIn.sharedInstance.signOut()
             #endif
             isLoading = false
             return true
+        } catch is CancellationError {
+            // The user backed out of the re-authentication prompt.
+            isLoading = false
+            return false
         } catch {
-            // Firebase requires a recent sign-in before it will delete an account.
-            if (error as NSError).code == AuthErrorCode.requiresRecentLogin.rawValue {
+            let nsError = error as NSError
+            if nsError.code == ASAuthorizationError.canceled.rawValue,
+               nsError.domain == ASAuthorizationError.errorDomain {
+                isLoading = false
+                return false
+            }
+            if nsError.code == AuthErrorCode.requiresRecentLogin.rawValue {
                 self.error = .reauthenticationRequired
             } else {
                 self.error = .deleteAccountFailed(error.localizedDescription)
@@ -210,6 +246,66 @@ final class AuthService: ObservableObject {
         return false
         #endif
     }
+
+    #if canImport(FirebaseAuth)
+    /// Re-authenticates the user with whichever provider they originally used.
+    /// Returns Apple's authorization code when the provider was Apple, so the
+    /// caller can revoke the token.
+    private func reauthenticate(_ user: User) async throws -> String? {
+        let providerIDs = user.providerData.map(\.providerID)
+
+        if providerIDs.contains("apple.com") {
+            let helper = AppleSignInHelper()
+            appleReauthHelper = helper  // held for the life of the request
+            defer { appleReauthHelper = nil }
+
+            let credential = try await helper.signIn()
+            guard let identityToken = credential.identityToken,
+                  let idTokenString = String(data: identityToken, encoding: .utf8),
+                  let nonce = helper.nonce else {
+                throw AuthError.invalidCredential
+            }
+
+            let firebaseCredential = OAuthProvider.appleCredential(
+                withIDToken: idTokenString,
+                rawNonce: nonce,
+                fullName: credential.fullName
+            )
+            try await user.reauthenticate(with: firebaseCredential)
+
+            return credential.authorizationCode
+                .flatMap { String(data: $0, encoding: .utf8) }
+        }
+
+        #if canImport(GoogleSignIn) && canImport(FirebaseCore)
+        if providerIDs.contains("google.com") {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootViewController = windowScene.keyWindow?.rootViewController else {
+                throw AuthError.noRootViewController
+            }
+
+            if let clientID = FirebaseApp.app()?.options.clientID {
+                GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+            }
+
+            let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
+            guard let idToken = result.user.idToken?.tokenString else {
+                throw AuthError.invalidCredential
+            }
+
+            let credential = GoogleAuthProvider.credential(
+                withIDToken: idToken,
+                accessToken: result.user.accessToken.tokenString
+            )
+            try await user.reauthenticate(with: credential)
+            return nil
+        }
+        #endif
+
+        // Unknown provider — let the delete attempt surface the real error.
+        return nil
+    }
+    #endif
 
     // MARK: - Sign Out
 
