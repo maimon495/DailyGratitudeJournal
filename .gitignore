@@ -18,3 +18,7 @@ Pods/
 
 # Firebase Configuration (contains sensitive API keys)
 GoogleService-Info.plist
+
+# App Store Connect API private keys — never commit these
+*.p8
+AuthKey_*.p8
