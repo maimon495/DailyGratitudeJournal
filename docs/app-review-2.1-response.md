@@ -18,12 +18,14 @@ Two things to do:
 ```
 Thank you for reviewing. Answers to each item below, in order.
 
-A screen recording captured on a physical iPhone running the latest iOS is
-attached. It begins with a cold launch from the home screen and shows the
-complete typical flow: account registration and login via Sign in with Apple,
-writing and saving an entry with ink and typeface selection, the weekly journal
-spread with page navigation and search, the On This Day view, Settings, and
-finally in-app account deletion.
+A screen recording captured on a physical iPhone 16 Pro Max running the latest
+iOS is attached. It begins by launching the app from the home screen and shows
+the typical flow end to end: account registration and sign-in via Sign in with
+Apple, writing an entry with ink colour and typeface selection and saving it,
+the saved entry on the Today screen, the weekly journal spread, the On This Day
+view, the Settings screen, and finally in-app account deletion — the
+confirmation prompt, the re-authentication required before deletion, and the app
+returning to the sign-in screen once the account and its entries are gone.
 
 Regarding user-generated content: journal entries are stored only on the user's
 own device using Apple's SwiftData and are never uploaded, transmitted, shared,
