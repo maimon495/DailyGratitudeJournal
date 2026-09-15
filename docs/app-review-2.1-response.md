@@ -228,8 +228,19 @@ minutes is normal.
 
 ---
 
-## After replying
+## After replying — the reply alone is not enough
 
-Apple usually responds within a day or two on a 2.1 request. Because this is an
-information request rather than a defect, **no new build is required** — 1.0 (16)
-stays attached and re-enters review once they're satisfied.
+Because this is an information request rather than a defect, **no new build is
+required** — 1.0 (16) stays attached. But posting the reply does **not** put the
+item back in the review queue. It stays `REJECTED` / `UNRESOLVED_ISSUES`, with no
+reminder from Apple, until it is explicitly resubmitted:
+
+1. Version page (Distribution > iOS App 1.0) > **Update Review** — moves the item
+   from Rejected to Ready for Review.
+2. Submission page > **Resubmit to App Review** — greyed out until step 1 is done;
+   this is what actually sends it.
+
+The reply of 2026-09-10 3:15 PM sat unqueued until 2026-09-15, when both clicks
+were made and the state moved to `WAITING_FOR_REVIEW`. The message thread and the
+attached screen recording carry over, so the reviewer still has the answers and
+the video.
