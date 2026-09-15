@@ -131,6 +131,24 @@ Gotchas met along the way: pricing must be set explicitly even for a free app;
 
 `~/.appstoreconnect/tools/check_status.py` reports current version/submission state.
 
+### Answering a rejection does not requeue it
+Replying in Resolution Center is only how you *talk* to App Review. A rejected
+item stays `REJECTED` / `UNRESOLVED_ISSUES` until it is explicitly pushed back
+into the queue, and Apple sends no reminder — the submission simply sits there
+looking like you are waiting on them when they are waiting on you.
+
+Requeuing takes **two** clicks, in this order:
+
+1. Version page (Distribution > iOS App 1.0) > **Update Review**. This moves the
+   item from Rejected to Ready for Review.
+2. Submission page > **Resubmit to App Review**, which is greyed out until step 1
+   is done, and is what actually sends it.
+
+The Guideline 2.1 reply of 2026-09-10 sat unqueued for three business days
+because only the reply had been posted. The message thread and its attachments
+survive the resubmission, so the reviewer still sees the answers and the screen
+recording.
+
 ### API version note
 The SDK is pinned to **Google Mobile Ads 11.13.0** (`upToNextMajorVersion` from 11.0.0), which uses
 the **`GAD`/`UMP`-prefixed** API (`GADBannerView`, `GADRequest`, `UMPConsentInformation`).
