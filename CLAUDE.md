@@ -44,11 +44,12 @@ DailyGratitudeJournal/
     └── ATTPermissionManager.swift   # App Tracking Transparency prompt
 ```
 
-## Active Branch
-`feature/ads-monetization`
+## Branching
+Work on a feature branch and open a PR; don't commit to `main` directly. The
+ads/monetization, page-curl and account-deletion work is all merged.
 
 ## Current Version
-`MARKETING_VERSION = 1.0`, `CURRENT_PROJECT_VERSION = 11`, bundle ID
+`MARKETING_VERSION = 1.0`, `CURRENT_PROJECT_VERSION = 16`, bundle ID
 `com.brianherz.DailyGratitudeJournal`, team `F669HYU266`, **iPhone only**.
 
 The App Store Connect version record is **1.0** — a build only attaches to a
@@ -159,28 +160,32 @@ will not compile here. Moving to v12+ is a breaking rename across `BannerAdView`
 - Firebase Auth with Sign in with Apple + Google. `AuthService.deleteAccount()` implements
   in-app account deletion (App Store Review Guideline 5.1.1(v)); Settings deletes the Firebase
   user first, then the local SwiftData entries, so a failed delete never destroys journal data.
+- Deletion re-authenticates through whichever provider the user originally used, because Firebase
+  refuses to delete an account whose sign-in is more than a few minutes old. For Apple it also
+  revokes the token (`revokeToken(withAuthorizationCode:)`), which Apple requires on deletion.
+  `AppleSignInHelper` is held in a property for the life of the request — letting it deallocate
+  mid-flight is what produced "Sign in with Apple error 1000".
 - The `applesignin` entitlement is applied to **both** Debug and Release configs. It was
   Release-only, which broke Sign in with Apple in Debug builds on device.
 
 ## What Still Needs Doing
-Done since: signing works (archive + distribution-signed .ipa verified), privacy
-policy and support page are live on GitHub Pages and wired into Settings, DSA
-trader status is complete, and build 1.0 (10) is on TestFlight.
+As of 2026-09-15, 1.0 (16) is in `WAITING_FOR_REVIEW`. Everything that can be
+done before Apple approves is done: signing, the 50 SKAdNetwork IDs, the privacy
+manifest, UMP consent, account deletion with re-authentication and Apple token
+revocation, the privacy policy and support pages, DSA trader status, App Privacy
+nutrition labels (published), the four 6.9" screenshots, and `app-ads.txt` live
+at `maimon495.github.io/app-ads.txt`.
 
-1. **Verify the banner renders on device** — still the biggest unknown. Ad
-   rendering sits behind the auth gate, so it has never been confirmed on real
-   hardware. A brand-new AdMob app also gets little or no fill until the app is
-   published and linked, so an empty banner may be expected rather than broken.
-2. **Verify account deletion on device** — a reviewer will test it.
-3. **Reconcile Privacy Nutrition Labels** in App Store Connect with
-   `PrivacyInfo.xcprivacy` (crib sheet in `docs/app-store-listing.md`).
-4. **Replace the 5 stale 6.5" screenshots** in App Store Connect with the four
-   6.9" captures in `docs/screenshots/`.
-5. **Account deletion + reauthentication** — Firebase requires a recent sign-in
-   to delete. The code surfaces a "sign out and back in" message on
-   `requiresRecentLogin` rather than running a full reauth flow.
-6. **app-ads.txt** — needs root-level hosting (`maimon495.github.io/app-ads.txt`,
-   i.e. a separate user-page repo). Only matters once live.
+Two things remain, and both are gated on approval:
+
+1. **Link the app in AdMob** — AdMob > Apps > "Link to app store". Until this is
+   done AdMob shows *"Apps must be approved before serving ads"* and withholds
+   fill, so an empty banner is expected rather than broken. This is the single
+   step that turns ads on.
+2. **Confirm the banner renders on device** — it has never been visually
+   confirmed on real hardware, because ad rendering sits behind the auth gate and
+   fill was withheld. Check this only after step 1; before then an empty slot
+   proves nothing.
 
 ## Key Design Tokens (JournalTheme.swift)
 - `JournalTheme.warmWhite` — navigation bar background
