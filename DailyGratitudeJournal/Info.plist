@@ -2,6 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Home screen name. Without this the icon falls back to the product
+	     name, "DailyGratitudeJournal", which is unspaced and truncates.
+	     It must also match the App Store name to avoid a 2.3 / 4.3 flag. -->
+	<key>CFBundleDisplayName</key>
+	<string>Inkwell</string>
 	<key>ITSAppManagesNonExemptEncryption</key>
 	<false/>
 	<key>GADApplicationIdentifier</key>
