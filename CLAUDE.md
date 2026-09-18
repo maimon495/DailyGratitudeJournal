@@ -49,12 +49,16 @@ Work on a feature branch and open a PR; don't commit to `main` directly. The
 ads/monetization, page-curl and account-deletion work is all merged.
 
 ## Current Version
-`MARKETING_VERSION = 1.0`, `CURRENT_PROJECT_VERSION = 16`, bundle ID
+`MARKETING_VERSION = 1.0`, `CURRENT_PROJECT_VERSION = 17`, bundle ID
 `com.brianherz.DailyGratitudeJournal`, team `F669HYU266`, **iPhone only**.
 
 The App Store Connect version record is **1.0** — a build only attaches to a
 version record whose number matches exactly, so keep these in step. App Store
-Connect app name is "Gratitude Journaling Every Day", Apple ID `6758810550`.
+Connect app name is **"Inkwell: Gratitude Journal"**, Apple ID `6758810550`.
+The home screen name comes from `CFBundleDisplayName` = `Inkwell`; without that key
+it falls back to the product name `DailyGratitudeJournal`, which is unspaced and
+truncates. Store name, home screen name and description must agree — a mismatch is
+itself a 4.3 / 2.3 signal.
 
 ## What's Been Done
 ### AdMob / Monetization
@@ -150,6 +154,13 @@ because only the reply had been posted. The message thread and its attachments
 survive the resubmission, so the reviewer still sees the answers and the screen
 recording.
 
+**If the version itself changed** (new build, new metadata), there is an extra
+step: the first **Update Review** drops the version from `REJECTED` to
+`PREPARE_FOR_SUBMISSION` and the submission page still shows the old rejected
+item. Click **Update Review** a second time — that is what puts the item back as
+Ready for Review — and only then does **Resubmit to App Review** light up. Watch
+`versionState` rather than the page, which lags.
+
 ### API version note
 The SDK is pinned to **Google Mobile Ads 11.13.0** (`upToNextMajorVersion` from 11.0.0), which uses
 the **`GAD`/`UMP`-prefixed** API (`GADBannerView`, `GADRequest`, `UMPConsentInformation`).
@@ -169,23 +180,22 @@ will not compile here. Moving to v12+ is a breaking rename across `BannerAdView`
   Release-only, which broke Sign in with Apple in Debug builds on device.
 
 ## What Still Needs Doing
-As of 2026-09-15, 1.0 (16) is in `WAITING_FOR_REVIEW`. Everything that can be
-done before Apple approves is done: signing, the 50 SKAdNetwork IDs, the privacy
-manifest, UMP consent, account deletion with re-authentication and Apple token
-revocation, the privacy policy and support pages, DSA trader status, App Privacy
-nutrition labels (published), the four 6.9" screenshots, and `app-ads.txt` live
-at `maimon495.github.io/app-ads.txt`.
+As of 2026-09-17, 1.0 (17) is in `WAITING_FOR_REVIEW` after a **Guideline 4.3(a)
+Design: Spam** rejection of build 16. See `docs/app-review-4.3-response.md` for
+the reply and the metadata changes made in response (rename to Inkwell, category
+moved to Lifestyle, keywords rewritten, display name added).
 
-Two things remain, and both are gated on approval:
+Gated on approval:
 
-1. **Link the app in AdMob** — AdMob > Apps > "Link to app store". Until this is
-   done AdMob shows *"Apps must be approved before serving ads"* and withholds
-   fill, so an empty banner is expected rather than broken. This is the single
-   step that turns ads on.
-2. **Confirm the banner renders on device** — it has never been visually
-   confirmed on real hardware, because ad rendering sits behind the auth gate and
-   fill was withheld. Check this only after step 1; before then an empty slot
-   proves nothing.
+1. **Link the app in AdMob** — AdMob > Apps > "Link to app store". Until then
+   AdMob withholds fill, so an empty banner is expected rather than broken. This
+   is the single step that turns ads on.
+2. **Confirm the banner renders on device** — never yet visually confirmed on real
+   hardware. Only meaningful after step 1.
+
+If 4.3(a) is upheld, the fallback is an App Review Board appeal, and past that,
+functional differentiation rather than argument — the analog side (real fountain
+pen inks, page curl, ruled weekly spreads) is the thread worth pulling.
 
 ## Key Design Tokens (JournalTheme.swift)
 - `JournalTheme.warmWhite` — navigation bar background
