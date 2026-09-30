@@ -36,3 +36,10 @@ listing and the app on the device match.
 No other metadata used the old name. Please let us know if anything else needs
 attention.
 ```
+
+## How it was resubmitted
+
+Entirely via the API on 2026-09-30: build 18 attached to version 1.0, the reply
+above prepended to the App Review notes (no Resolution Center API exists), the
+rejected submission item marked `resolved`, then the submission `submitted`.
+State: `WAITING_FOR_REVIEW`.

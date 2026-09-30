@@ -161,6 +161,14 @@ item. Click **Update Review** a second time — that is what puts the item back 
 Ready for Review — and only then does **Resubmit to App Review** light up. Watch
 `versionState` rather than the page, which lags.
 
+**Or skip the web UI entirely.** On 2026-09-30 the API requeued a rejected
+submission directly: attach the new build to the version, then
+`PATCH /v1/reviewSubmissionItems/{id}` with `resolved: true` (item goes
+`REJECTED` → `READY_FOR_REVIEW`), then `PATCH /v1/reviewSubmissions/{id}` with
+`submitted: true` (→ `WAITING_FOR_REVIEW`). Resolution Center replies still have
+no API, so put the explanation at the top of the App Review notes
+(`appStoreReviewDetails.notes`), which the reviewer sees with the submission.
+
 ### API version note
 The SDK is pinned to **Google Mobile Ads 11.13.0** (`upToNextMajorVersion` from 11.0.0), which uses
 the **`GAD`/`UMP`-prefixed** API (`GADBannerView`, `GADRequest`, `UMPConsentInformation`).
@@ -182,7 +190,7 @@ will not compile here. Moving to v12+ is a breaking rename across `BannerAdView`
 ## What Still Needs Doing
 As of 2026-09-30, build 17 was rejected under **Guideline 5.2.5** (Apple
 trademark: "Inkwell" is a macOS feature). The earlier 4.3(a) Spam finding was not
-repeated. Renamed to **Quill** and uploaded build 18. See
+repeated. Renamed to **Quill** and uploaded build 18, resubmitted by API the same day (`WAITING_FOR_REVIEW`). See
 `docs/app-review-5.2.5-response.md`, and `docs/app-review-4.3-response.md` for the
 earlier round. Check names against Apple's own product/feature names too.
 
