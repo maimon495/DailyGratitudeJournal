@@ -49,13 +49,13 @@ Work on a feature branch and open a PR; don't commit to `main` directly. The
 ads/monetization, page-curl and account-deletion work is all merged.
 
 ## Current Version
-`MARKETING_VERSION = 1.0`, `CURRENT_PROJECT_VERSION = 17`, bundle ID
+`MARKETING_VERSION = 1.0`, `CURRENT_PROJECT_VERSION = 18`, bundle ID
 `com.brianherz.DailyGratitudeJournal`, team `F669HYU266`, **iPhone only**.
 
 The App Store Connect version record is **1.0** — a build only attaches to a
 version record whose number matches exactly, so keep these in step. App Store
-Connect app name is **"Inkwell: Gratitude Journal"**, Apple ID `6758810550`.
-The home screen name comes from `CFBundleDisplayName` = `Inkwell`; without that key
+Connect app name is **"Quill: Gratitude Journal"**, Apple ID `6758810550`.
+The home screen name comes from `CFBundleDisplayName` = `Quill`; without that key
 it falls back to the product name `DailyGratitudeJournal`, which is unspaced and
 truncates. Store name, home screen name and description must agree — a mismatch is
 itself a 4.3 / 2.3 signal.
@@ -161,6 +161,14 @@ item. Click **Update Review** a second time — that is what puts the item back 
 Ready for Review — and only then does **Resubmit to App Review** light up. Watch
 `versionState` rather than the page, which lags.
 
+**Or skip the web UI entirely.** On 2026-09-30 the API requeued a rejected
+submission directly: attach the new build to the version, then
+`PATCH /v1/reviewSubmissionItems/{id}` with `resolved: true` (item goes
+`REJECTED` → `READY_FOR_REVIEW`), then `PATCH /v1/reviewSubmissions/{id}` with
+`submitted: true` (→ `WAITING_FOR_REVIEW`). Resolution Center replies still have
+no API, so put the explanation at the top of the App Review notes
+(`appStoreReviewDetails.notes`), which the reviewer sees with the submission.
+
 ### API version note
 The SDK is pinned to **Google Mobile Ads 11.13.0** (`upToNextMajorVersion` from 11.0.0), which uses
 the **`GAD`/`UMP`-prefixed** API (`GADBannerView`, `GADRequest`, `UMPConsentInformation`).
@@ -180,10 +188,11 @@ will not compile here. Moving to v12+ is a breaking rename across `BannerAdView`
   Release-only, which broke Sign in with Apple in Debug builds on device.
 
 ## What Still Needs Doing
-As of 2026-09-17, 1.0 (17) is in `WAITING_FOR_REVIEW` after a **Guideline 4.3(a)
-Design: Spam** rejection of build 16. See `docs/app-review-4.3-response.md` for
-the reply and the metadata changes made in response (rename to Inkwell, category
-moved to Lifestyle, keywords rewritten, display name added).
+As of 2026-09-30, build 17 was rejected under **Guideline 5.2.5** (Apple
+trademark: "Inkwell" is a macOS feature). The earlier 4.3(a) Spam finding was not
+repeated. Renamed to **Quill** and uploaded build 18, resubmitted by API the same day (`WAITING_FOR_REVIEW`). See
+`docs/app-review-5.2.5-response.md`, and `docs/app-review-4.3-response.md` for the
+earlier round. Check names against Apple's own product/feature names too.
 
 Gated on approval:
 
