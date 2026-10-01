@@ -213,3 +213,8 @@ pen inks, page curl, ruled weekly spreads) is the thread worth pulling.
 - `JournalTheme.inkCharcoal` — secondary text
 - `JournalTheme.cream` — card/input backgrounds
 - `JournalTheme.pageMargin` — standard horizontal padding
+
+## Current status
+Handoff snapshot (2026-10-01) — where things stand, next steps, and what lives outside git. Other projects: `docs/ALL-PROJECTS.md` in `maimon495/DailyGratitudeJournal`.
+
+@STATUS.md
