@@ -29,7 +29,7 @@ see `docs/ALL-PROJECTS.md` for every other project._
 | App Store Connect API key | `~/.appstoreconnect/private_keys/AuthKey_SZA976J3UV.p8` | Secret. Issuer `1fef01fb-08c0-4557-93ad-4be5d0467efb`. Re-download not possible; create a new key in App Store Connect > Users and Access > Integrations if lost. |
 | Status script + venv | `~/.appstoreconnect/tools/check_status.py`, `venv/` | Uses `pyjwt`, `requests`, `cryptography`. |
 | `GoogleService-Info.plist` | gitignored; copy in any `.xcarchive` under `~/Library/Developer/Xcode/Archives/` | Required to archive. Re-downloadable from Firebase console. |
-| Claude scheduled tasks | `~/.claude/scheduled-tasks/quill-app-review-check` (daily 9am) and an older, stale `app-store-review-watch` | Recreate on the new account if wanted; delete the stale one. |
+| Claude scheduled task | `~/.claude/scheduled-tasks/quill-app-review-check` (daily 9am, read-only status check) | Recreate on the new account if wanted. |
 
 ## Working preferences (from Claude memory)
 - Work on a feature branch and open a PR; don't commit to `main`. Brian merges.
